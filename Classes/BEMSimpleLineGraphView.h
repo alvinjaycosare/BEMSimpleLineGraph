@@ -357,6 +357,8 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 /// When set to YES, dots will be displayed at full opacity and no line will be drawn through the dots. Default value is NO.
 @property (nonatomic) BOOL displayDotsOnly;
 
+@property (nonatomic) BOOL enableSCIRatesGraphMode;
+
 
 @end
 
@@ -508,6 +510,12 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
  @param index The index of the element associated with the popup view
  @return The custom popup view to use */
 - (void)lineGraph:(BEMSimpleLineGraphView *)graph modifyPopupView:(UIView *)popupView forIndex:(NSUInteger)index;
+
+
+
+- (BOOL)lineGraph:(BEMSimpleLineGraphView *)graph hideDotAtIndex:(CGFloat)index;
+
+- (BOOL)lineGraph:(BEMSimpleLineGraphView *)graph hideLabelAtIndex:(CGFloat)index;
 
 
 //----- TOUCH EVENTS -----//
