@@ -81,6 +81,8 @@
     // The labels to report the values of the graph when the user touches it
     self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
     self.labelDates.text = @"between now and later";
+  
+  self.myGraph.enableThousandValueFormatter = YES;
 }
 
 - (void)didReceiveMemoryWarning {

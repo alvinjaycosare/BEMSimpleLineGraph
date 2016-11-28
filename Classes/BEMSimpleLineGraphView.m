@@ -987,7 +987,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         for (NSNumber *dotValue in dotValues) {
             CGFloat yAxisPosition = [self yPositionForDotValue:dotValue.floatValue];
             UILabel *labelYAxis = [[UILabel alloc] initWithFrame:frameForLabelYAxis];
-            NSString *formattedValue = [NSString stringWithFormat:self.formatStringForValues, dotValue.doubleValue];
+            NSString *formattedValue = [self formattedYLabelTextWithValue:dotValue.doubleValue];
             labelYAxis.text = [NSString stringWithFormat:@"%@%@%@", yAxisPrefix, formattedValue, yAxisSuffix];
             labelYAxis.textAlignment = self.alignmentYAxisLabel;
             labelYAxis.font = self.labelFont;
@@ -1016,7 +1016,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             
             UILabel *labelYAxis = [[UILabel alloc] initWithFrame:frameForLabelYAxis];
             labelYAxis.center = CGPointMake(xValueForCenterLabelYAxis, yAxisPosition);
-            labelYAxis.text = [NSString stringWithFormat:self.formatStringForValues, (graphHeight - self.XAxisLabelYOffset - yAxisPosition)];
+            labelYAxis.text = [self formattedYLabelTextWithValue:(graphHeight - self.XAxisLabelYOffset - yAxisPosition)];
             labelYAxis.font = self.labelFont;
             labelYAxis.textAlignment = self.alignmentYAxisLabel;
             labelYAxis.textColor = self.colorYaxisLabel;
@@ -1059,6 +1059,24 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     }
     
     [self didFinishDrawingIncludingYAxis:YES];  
+}
+
+- (NSString *)formattedYLabelTextWithValue:(CGFloat)value {
+  if (self.enableThousandValueFormatter)
+    return [self kFormatForNumber:@(value)];
+  else
+    return [NSString stringWithFormat:self.formatStringForValues, value];
+}
+
+-(NSString *)kFormatForNumber:(NSNumber *)number{
+  if(number.doubleValue < 1000)
+    return [NSString stringWithFormat:self.formatStringForValues, number.doubleValue];
+  
+  CGFloat result = number.doubleValue/1000;
+  
+  NSString *kFormatStringValues = [NSString stringWithFormat:@"%@k", self.formatStringForValues];
+  NSString *kValue = [NSString stringWithFormat:kFormatStringValues, result];
+  return kValue;
 }
 
 /// Area on the graph that doesn't include the axes
