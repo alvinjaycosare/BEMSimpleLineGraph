@@ -1338,6 +1338,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 - (void)handleGestureAction:(UIGestureRecognizer *)recognizer {
     CGPoint translation = [recognizer locationInView:self.viewForBaselineLayout];
     
+  CGRect originalFrame = self.touchInputLine.frame;
     if (!((translation.x + self.frame.origin.x) <= self.frame.origin.x) && !((translation.x + self.frame.origin.x) >= self.frame.origin.x + self.frame.size.width)) { // To make sure the vertical line doesn't go beyond the frame of the graph.
         self.touchInputLine.frame = CGRectMake(translation.x - self.widthTouchInputLine/2, 0, self.widthTouchInputLine, self.frame.size.height);
     }
@@ -1349,11 +1350,12 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     self.touchInputLine.frame = CGRectMake(CGRectGetMidX(closestDot.frame), 0, self.widthTouchInputLine, self.frame.size.height - self.XAxisLabelYOffset);
     
     int dotIndex = (int)(closestDot.tag - DotFirstTag100);
-    int lastIndex = (int)numberOfPoints - 1;
     
-    // Ignore first and last dummy data
-    if (dotIndex == 0 || dotIndex == lastIndex)
+    // Ignore touch if dot is hidden
+    if ([self.delegate respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] && [self.delegate lineGraph:self hideDotAtIndex:dotIndex]) {
+      self.touchInputLine.frame = originalFrame;
       return;
+    }
 
   }
   
