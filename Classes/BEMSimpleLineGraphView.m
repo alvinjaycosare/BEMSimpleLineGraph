@@ -1230,6 +1230,20 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 //    [self setNeedsLayout];
 }
 
+
+- (void)selectPointIndex:(NSUInteger) index {
+  UILabel *xAxisLabel = (UILabel *)[self.graphLabelsForXAxis objectAtIndex:index];
+  
+  self.touchInputLine.frame = CGRectMake(CGRectGetMidX(xAxisLabel.frame), 0, self.widthTouchInputLine, self.frame.size.height - (self.XAxisLabelYOffset + 2));
+  self.touchInputLine.alpha = self.alphaTouchInputLine;
+  
+  closestDot = [self closestDotFromtouchInputLine:self.touchInputLine];
+  
+  if ([self.delegate respondsToSelector:@selector(lineGraph:didTouchGraphWithClosestIndex:)] && self.enableTouchReport == YES) {
+    [self.delegate lineGraph:self didTouchGraphWithClosestIndex:index];
+  }
+}
+
 #pragma mark - Calculations
 
 - (NSArray *)calculationDataPoints {
@@ -1365,7 +1379,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
   
   // SCI
   if ([self.delegate respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] ) {
-    self.touchInputLine.frame = CGRectMake(CGRectGetMidX(closestDot.frame), 0, self.widthTouchInputLine, self.frame.size.height - self.XAxisLabelYOffset);
+    self.touchInputLine.frame = CGRectMake(CGRectGetMidX(closestDot.frame), 0, self.widthTouchInputLine, self.frame.size.height - (self.XAxisLabelYOffset + 2));
     
     int dotIndex = (int)(closestDot.tag - DotFirstTag100);
     

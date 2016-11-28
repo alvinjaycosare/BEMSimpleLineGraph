@@ -131,6 +131,8 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
  @return An array of UILabels, one for each displayed X-Axis label. The array is sorted from the left side of the graph to the right side. */
 - (nullable NSArray *)graphLabelsForXAxis;
 
+- (void)selectPointIndex:(NSUInteger) index;
+
 
 
 //------------------------------------------------------------------------------------//

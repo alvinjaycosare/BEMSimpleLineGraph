@@ -74,7 +74,7 @@
   self.myGraph.overlapYAxisWithGraph = YES;
   
   self.myGraph.alignmentYAxisLabel = NSTextAlignmentLeft;
-    
+  
     // Setup initial curve selection segment
     self.curveChoice.selectedSegmentIndex = self.myGraph.enableBezierCurve;
 
@@ -136,23 +136,24 @@
 
 // Refresh the line graph using the specified properties
 - (IBAction)refresh:(id)sender {
-    [self hydrateDatasets];
-    
-    UIColor *color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0]; // set the default color
-    if (self.graphColorChoice.selectedSegmentIndex == 0) color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
-    else if (self.graphColorChoice.selectedSegmentIndex == 1) color = [UIColor colorWithRed:255.0/255.0 green:187.0/255.0 blue:31.0/255.0 alpha:1.0];
-    else if (self.graphColorChoice.selectedSegmentIndex == 2) color = [UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];
-    
-    self.myGraph.enableBezierCurve = (BOOL) self.curveChoice.selectedSegmentIndex;
-    self.myGraph.colorTop = color;
-    self.myGraph.colorBottom = color;
-    self.myGraph.backgroundColor = color;
-    self.view.tintColor = color;
-    self.labelValues.textColor = color;
-    self.navigationController.navigationBar.tintColor = color;
-    
-    self.myGraph.animationGraphStyle = BEMLineAnimationFade;
-    [self.myGraph reloadGraph];
+  [self.myGraph selectPointIndex:3];
+//    [self hydrateDatasets];
+//    
+//    UIColor *color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0]; // set the default color
+//    if (self.graphColorChoice.selectedSegmentIndex == 0) color = [UIColor colorWithRed:31.0/255.0 green:187.0/255.0 blue:166.0/255.0 alpha:1.0];
+//    else if (self.graphColorChoice.selectedSegmentIndex == 1) color = [UIColor colorWithRed:255.0/255.0 green:187.0/255.0 blue:31.0/255.0 alpha:1.0];
+//    else if (self.graphColorChoice.selectedSegmentIndex == 2) color = [UIColor colorWithRed:0.0 green:140.0/255.0 blue:255.0/255.0 alpha:1.0];
+//    
+//    self.myGraph.enableBezierCurve = (BOOL) self.curveChoice.selectedSegmentIndex;
+//    self.myGraph.colorTop = color;
+//    self.myGraph.colorBottom = color;
+//    self.myGraph.backgroundColor = color;
+//    self.view.tintColor = color;
+//    self.labelValues.textColor = color;
+//    self.navigationController.navigationBar.tintColor = color;
+//    
+//    self.myGraph.animationGraphStyle = BEMLineAnimationFade;
+//    [self.myGraph reloadGraph];
 }
 
 - (float)getRandomFloat {
