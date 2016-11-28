@@ -41,20 +41,22 @@
     };
     
     // Apply the gradient to the bottom portion of the graph
-    self.myGraph.gradientBottom = CGGradientCreateWithColorComponents(colorspace, components, locations, num_locations);
-    
+//    self.myGraph.gradientBottom = CGGradientCreateWithColorComponents(colorspace, components, locations, num_locations);
+  
     // Enable and disable various graph properties and axis displays
     self.myGraph.enableTouchReport = YES;
-    self.myGraph.enablePopUpReport = YES;
+//    self.myGraph.enablePopUpReport = YES;
     self.myGraph.enableYAxisLabel = YES;
     self.myGraph.autoScaleYAxis = YES;
-    self.myGraph.alwaysDisplayDots = NO;
-    self.myGraph.enableReferenceXAxisLines = YES;
+    self.myGraph.alwaysDisplayDots = YES;
+//    self.myGraph.enableReferenceXAxisLines = YES;
     self.myGraph.enableReferenceYAxisLines = YES;
     self.myGraph.enableReferenceAxisFrame = YES;
-    
+  
+  self.myGraph.colorBackgroundXaxis = [UIColor whiteColor];
+  
     // Draw an average line
-    self.myGraph.averageLine.enableAverageLine = YES;
+//    self.myGraph.averageLine.enableAverageLine = YES;
     self.myGraph.averageLine.alpha = 0.6;
     self.myGraph.averageLine.color = [UIColor darkGrayColor];
     self.myGraph.averageLine.width = 2.5;
@@ -64,10 +66,12 @@
     self.myGraph.animationGraphStyle = BEMLineAnimationDraw;
     
     // Dash the y reference lines
-    self.myGraph.lineDashPatternForReferenceYAxisLines = @[@(2),@(2)];
+    self.myGraph.lineDashPatternForReferenceXAxisLines = @[@(2),@(2)];
     
     // Show the y axis values with this format string
     self.myGraph.formatStringForValues = @"%.1f";
+  
+  self.myGraph.overlapYAxisWithGraph = YES;
     
     // Setup initial curve selection segment
     self.curveChoice.selectedSegmentIndex = self.myGraph.enableBezierCurve;
@@ -201,9 +205,9 @@
 
 #pragma mark - SimpleLineGraph Delegate
 
-- (NSInteger)numberOfGapsBetweenLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph {
-    return 2;
-}
+//- (NSInteger)numberOfGapsBetweenLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph {
+//    return 2;
+//}
 
 - (NSString *)lineGraph:(BEMSimpleLineGraphView *)graph labelOnXAxisForIndex:(NSInteger)index {
 
@@ -217,18 +221,18 @@
 }
 
 - (void)lineGraph:(BEMSimpleLineGraphView *)graph didReleaseTouchFromGraphWithClosestIndex:(CGFloat)index {
-    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        self.labelValues.alpha = 0.0;
-        self.labelDates.alpha = 0.0;
-    } completion:^(BOOL finished) {
-        self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
-        self.labelDates.text = [NSString stringWithFormat:@"between %@ and %@", [self labelForDateAtIndex:0], [self labelForDateAtIndex:self.arrayOfDates.count - 1]];
-        
-        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-            self.labelValues.alpha = 1.0;
-            self.labelDates.alpha = 1.0;
-        } completion:nil];
-    }];
+//    [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//        self.labelValues.alpha = 0.0;
+//        self.labelDates.alpha = 0.0;
+//    } completion:^(BOOL finished) {
+//        self.labelValues.text = [NSString stringWithFormat:@"%i", [[self.myGraph calculatePointValueSum] intValue]];
+//        self.labelDates.text = [NSString stringWithFormat:@"between %@ and %@", [self labelForDateAtIndex:0], [self labelForDateAtIndex:self.arrayOfDates.count - 1]];
+//        
+//        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//            self.labelValues.alpha = 1.0;
+//            self.labelDates.alpha = 1.0;
+//        } completion:nil];
+//    }];
 }
 
 - (void)lineGraphDidFinishLoading:(BEMSimpleLineGraphView *)graph {
@@ -309,5 +313,18 @@
 //    }
 //    return increment;
 //}
+
+- (BOOL)lineGraph:(BEMSimpleLineGraphView *)graph hideDotAtIndex:(CGFloat)index {
+  return index == 0 || index == self.arrayOfDates.count - 1;
+}
+
+
+- (BOOL)lineGraph:(BEMSimpleLineGraphView *)graph hideLabelAtIndex:(CGFloat)index {
+  return index == 0 || index == self.arrayOfDates.count - 1;
+}
+
+- (NSInteger)numberOfYAxisLabelsOnLineGraph:(BEMSimpleLineGraphView *)graph {
+  return 5;
+}
 
 @end

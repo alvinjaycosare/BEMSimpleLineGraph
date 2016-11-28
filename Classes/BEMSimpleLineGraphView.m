@@ -508,7 +508,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 #endif
             [dataPoints addObject:@(dotValue)];
           
-          CGFloat YAxisLabelXOffset = self.enableSCIRatesGraphMode ? 0 :self.YAxisLabelXOffset;
+          CGFloat YAxisLabelXOffset = self.overlapYAxisWithGraph ? 0 :self.YAxisLabelXOffset;
           
             if (self.positionYAxisRight) {
                 positionOnXAxis = (((self.frame.size.width - YAxisLabelXOffset) / (numberOfPoints - 1)) * i);
@@ -671,7 +671,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
                 [xAxisLabelPoints addObject:xAxisLabelCoordinate];
             } else {
               
-              CGFloat YAxisLabelXOffset = self.enableSCIRatesGraphMode ? 0 :self.YAxisLabelXOffset;
+              CGFloat YAxisLabelXOffset = self.overlapYAxisWithGraph ? 0 :self.YAxisLabelXOffset;
                 NSNumber *xAxisLabelCoordinate = [NSNumber numberWithFloat:labelXAxis.center.x-YAxisLabelXOffset];
                 [xAxisLabelPoints addObject:xAxisLabelCoordinate];
             }
@@ -872,7 +872,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     xAxisHorizontalFringeNegationValue = horizontalTranslation;
   
   
-  CGFloat YAxisLabelXOffset = self.enableSCIRatesGraphMode ? 0 :self.YAxisLabelXOffset;
+  CGFloat YAxisLabelXOffset = self.overlapYAxisWithGraph ? 0 :self.YAxisLabelXOffset;
     // Determine the final x-axis position
     CGFloat positionOnXAxis;
     if (self.positionYAxisRight) {
@@ -926,7 +926,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         textAlignmentForLabelYAxis = NSTextAlignmentRight;
     }
   
-    if (!self.enableSCIRatesGraphMode) {
+    if (!self.overlapYAxisWithGraph) {
       UIView *backgroundYaxis = [[UIView alloc] initWithFrame:frameForBackgroundYAxis];
       backgroundYaxis.tag = BackgroundYAxisTag2100;
       if (self.colorBackgroundYaxis == nil) backgroundYaxis.backgroundColor = self.colorTop;
@@ -1064,7 +1064,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 /// Area on the graph that doesn't include the axes
 - (CGRect)drawableGraphArea {
   
-  CGFloat YAxisLabelXOffset = self.enableSCIRatesGraphMode ? 0 :self.YAxisLabelXOffset;
+  CGFloat YAxisLabelXOffset = self.overlapYAxisWithGraph ? 0 :self.YAxisLabelXOffset;
   
 //  CGRectMake(xAxisXPositionFirstOffset, self.frame.size.height-20, viewWidth/2, 20);
     NSInteger xAxisHeight = 20;
@@ -1078,7 +1078,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
 
 - (CGRect)drawableXAxisArea {
   
-  CGFloat YAxisLabelXOffset = self.enableSCIRatesGraphMode ? 0 :self.YAxisLabelXOffset;
+  CGFloat YAxisLabelXOffset = self.overlapYAxisWithGraph ? 0 :self.YAxisLabelXOffset;
   
     NSInteger xAxisHeight = 20;
     NSInteger xAxisWidth = [self drawableGraphArea].size.width + 1;
@@ -1345,7 +1345,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     closestDot = [self closestDotFromtouchInputLine:self.touchInputLine];
   
   // SCI
-  if (self.enableSCIRatesGraphMode) {
+  if (self.overlapYAxisWithGraph) {
     self.touchInputLine.frame = CGRectMake(CGRectGetMidX(closestDot.frame), 0, self.widthTouchInputLine, self.frame.size.height - self.XAxisLabelYOffset);
     
     int dotIndex = (int)(closestDot.tag - DotFirstTag100);
@@ -1380,7 +1380,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     }
   
   // SCI
-  if (!self.enableSCIRatesGraphMode) {
+  if (!self.overlapYAxisWithGraph) {
     // ON RELEASE
     if (recognizer.state == UIGestureRecognizerStateEnded) {
       if ([self.delegate respondsToSelector:@selector(lineGraph:didReleaseTouchFromGraphWithClosestIndex:)]) {
