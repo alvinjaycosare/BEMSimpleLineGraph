@@ -27,7 +27,7 @@ extern const CGFloat BEMNullGraphValue;
 NS_ASSUME_NONNULL_BEGIN
 
 /// Simple line graph / chart UIView subclass for iOS apps. Creates beautiful line graphs (without huge memory impacts) using QuartzCore.
-IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDelegate>
+@interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDelegate>
 
 
 
