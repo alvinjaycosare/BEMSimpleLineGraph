@@ -365,6 +365,8 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 @property (nonatomic) NSTextAlignment alignmentYAxisLabel;
 
+@property (nonatomic) BOOL allowOverlappingLabels;
+
 @end
 
 

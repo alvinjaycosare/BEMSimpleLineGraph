@@ -83,6 +83,8 @@
     self.labelDates.text = @"between now and later";
   
   self.myGraph.enableThousandValueFormatter = YES;
+  
+  self.myGraph.allowOverlappingLabels = YES;
 }
 
 - (void)didReceiveMemoryWarning {

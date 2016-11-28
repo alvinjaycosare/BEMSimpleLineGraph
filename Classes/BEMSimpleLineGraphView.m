@@ -790,27 +790,30 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
         }
     }
     __block NSUInteger lastMatchIndex;
-    
+  
+  if (!self.allowOverlappingLabels) {
     NSMutableArray *overlapLabels = [NSMutableArray arrayWithCapacity:0];
     [xAxisLabels enumerateObjectsUsingBlock:^(UILabel *label, NSUInteger idx, BOOL *stop) {
-        if (idx == 0) {
-            lastMatchIndex = 0;
-        } else { // Skip first one
-            UILabel *prevLabel = [xAxisLabels objectAtIndex:lastMatchIndex];
-            CGRect r = CGRectIntersection(prevLabel.frame, label.frame);
-            if (CGRectIsNull(r)) lastMatchIndex = idx;
-            else [overlapLabels addObject:label]; // Overlapped
-        }
-        
-        BOOL fullyContainsLabel = CGRectContainsRect(self.bounds, label.frame);
-        if (!fullyContainsLabel) {
-            [overlapLabels addObject:label];
-        }
+      if (idx == 0) {
+        lastMatchIndex = 0;
+      } else { // Skip first one
+        UILabel *prevLabel = [xAxisLabels objectAtIndex:lastMatchIndex];
+        CGRect r = CGRectIntersection(prevLabel.frame, label.frame);
+        if (CGRectIsNull(r)) lastMatchIndex = idx;
+        else [overlapLabels addObject:label]; // Overlapped
+      }
+      
+      BOOL fullyContainsLabel = CGRectContainsRect(self.bounds, label.frame);
+      if (!fullyContainsLabel) {
+        [overlapLabels addObject:label];
+      }
     }];
     
     for (UILabel *l in overlapLabels) {
-        [l removeFromSuperview];
+      [l removeFromSuperview];
     }
+  }
+  
 }
 
 - (NSString *)xAxisTextForIndex:(NSInteger)index {
