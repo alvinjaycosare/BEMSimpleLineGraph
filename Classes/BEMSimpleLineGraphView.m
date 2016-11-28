@@ -925,7 +925,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     } else {
         frameForBackgroundYAxis = CGRectMake(0, 0, self.YAxisLabelXOffset, self.frame.size.height);
         frameForLabelYAxis = CGRectMake(0, 0, self.YAxisLabelXOffset - 5, 15);
-        xValueForCenterLabelYAxis = self.YAxisLabelXOffset/2;
+        xValueForCenterLabelYAxis = (self.YAxisLabelXOffset/2) + self.marginLeftYAxisLabel;
         textAlignmentForLabelYAxis = NSTextAlignmentRight;
     }
   
@@ -1026,8 +1026,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             labelYAxis.backgroundColor = [UIColor clearColor];
             labelYAxis.tag = LabelYAxisTag2000;
             
-            [self addSubview:labelYAxis];
-            
+//            [self addSubview:labelYAxis];
+          
             [yAxisLabels addObject:labelYAxis];
             
             NSNumber *yAxisLabelCoordinate = @(labelYAxis.center.y);

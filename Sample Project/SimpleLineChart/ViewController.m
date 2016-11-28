@@ -85,6 +85,8 @@
   self.myGraph.enableThousandValueFormatter = YES;
   
   self.myGraph.allowOverlappingLabels = YES;
+  
+  self.myGraph.marginLeftYAxisLabel = 8.f;
 }
 
 - (void)didReceiveMemoryWarning {
