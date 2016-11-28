@@ -359,6 +359,10 @@ IB_DESIGNABLE @interface BEMSimpleLineGraphView : UIView <UIGestureRecognizerDel
 
 @property (nonatomic) BOOL overlapYAxisWithGraph;
 
+@property (strong, nonatomic) NSNumberFormatter *valueFormatter;
+
+@property (nonatomic) NSTextAlignment alignmentYAxisLabel;
+
 @end
 
 

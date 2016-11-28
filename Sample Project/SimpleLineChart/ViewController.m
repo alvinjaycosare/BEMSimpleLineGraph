@@ -72,6 +72,8 @@
     self.myGraph.formatStringForValues = @"%.1f";
   
   self.myGraph.overlapYAxisWithGraph = YES;
+  
+  self.myGraph.alignmentYAxisLabel = NSTextAlignmentLeft;
     
     // Setup initial curve selection segment
     self.curveChoice.selectedSegmentIndex = self.myGraph.enableBezierCurve;

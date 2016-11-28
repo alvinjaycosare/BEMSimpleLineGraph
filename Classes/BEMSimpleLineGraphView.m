@@ -989,7 +989,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             UILabel *labelYAxis = [[UILabel alloc] initWithFrame:frameForLabelYAxis];
             NSString *formattedValue = [NSString stringWithFormat:self.formatStringForValues, dotValue.doubleValue];
             labelYAxis.text = [NSString stringWithFormat:@"%@%@%@", yAxisPrefix, formattedValue, yAxisSuffix];
-            labelYAxis.textAlignment = textAlignmentForLabelYAxis;
+            labelYAxis.textAlignment = self.alignmentYAxisLabel;
             labelYAxis.font = self.labelFont;
             labelYAxis.textColor = self.colorYaxisLabel;
             labelYAxis.backgroundColor = [UIColor clearColor];
@@ -1018,7 +1018,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
             labelYAxis.center = CGPointMake(xValueForCenterLabelYAxis, yAxisPosition);
             labelYAxis.text = [NSString stringWithFormat:self.formatStringForValues, (graphHeight - self.XAxisLabelYOffset - yAxisPosition)];
             labelYAxis.font = self.labelFont;
-            labelYAxis.textAlignment = textAlignmentForLabelYAxis;
+            labelYAxis.textAlignment = self.alignmentYAxisLabel;
             labelYAxis.textColor = self.colorYaxisLabel;
             labelYAxis.backgroundColor = [UIColor clearColor];
             labelYAxis.tag = LabelYAxisTag2000;
@@ -1346,17 +1346,16 @@ typedef NS_ENUM(NSInteger, BEMInternalTags)
     closestDot = [self closestDotFromtouchInputLine:self.touchInputLine];
   
   // SCI
-  if (self.overlapYAxisWithGraph) {
+  if ([self.delegate respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] ) {
     self.touchInputLine.frame = CGRectMake(CGRectGetMidX(closestDot.frame), 0, self.widthTouchInputLine, self.frame.size.height - self.XAxisLabelYOffset);
     
     int dotIndex = (int)(closestDot.tag - DotFirstTag100);
     
     // Ignore touch if dot is hidden
-    if ([self.delegate respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] && [self.delegate lineGraph:self hideDotAtIndex:dotIndex]) {
+    if ([self.delegate lineGraph:self hideDotAtIndex:dotIndex]) {
       self.touchInputLine.frame = originalFrame;
       return;
     }
-
   }
   
     self.touchInputLine.alpha = self.alphaTouchInputLine;
