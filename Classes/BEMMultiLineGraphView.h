@@ -27,7 +27,7 @@
 
 @end
 
-@interface BEMMultiLineGraphView : UIView
+@interface BEMMultiLineGraphView : BEMSimpleLineGraphView
 
 @property(strong, nonatomic) id<BEMMultiLineGraphViewDataSource> dataSource;
 
