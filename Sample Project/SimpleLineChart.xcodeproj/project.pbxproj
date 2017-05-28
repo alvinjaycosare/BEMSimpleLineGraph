@@ -31,6 +31,11 @@
 		C3FD817A186DFD9A00FD8ED3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3FD815C186DFD9A00FD8ED3 /* UIKit.framework */; };
 		C3FD8182186DFD9A00FD8ED3 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C3FD8180186DFD9A00FD8ED3 /* InfoPlist.strings */; };
 		C3FD8184186DFD9A00FD8ED3 /* SimpleLineChartTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C3FD8183186DFD9A00FD8ED3 /* SimpleLineChartTests.m */; };
+		C84406E41ED6DF180011AA32 /* BEMMultiLineGraphView.m in Sources */ = {isa = PBXBuildFile; fileRef = C84406E31ED6DF180011AA32 /* BEMMultiLineGraphView.m */; };
+		C8A1D1781ED6ED6E00751490 /* BEMGraphDataSet.m in Sources */ = {isa = PBXBuildFile; fileRef = C8A1D1771ED6ED6E00751490 /* BEMGraphDataSet.m */; };
+		C8A1D17B1ED6F86C00751490 /* BEMGraphOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = C8A1D17A1ED6F86C00751490 /* BEMGraphOptions.m */; };
+		C8E393A51EDB116700999986 /* BEMGraphCircle.m in Sources */ = {isa = PBXBuildFile; fileRef = C8E393A41EDB116700999986 /* BEMGraphCircle.m */; };
+		C8E393AA1EDB1F0300999986 /* BEMGraphLine.m in Sources */ = {isa = PBXBuildFile; fileRef = C8E393A91EDB1F0300999986 /* BEMGraphLine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,6 +85,16 @@
 		C3FD817F186DFD9A00FD8ED3 /* SimpleLineChartTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "SimpleLineChartTests-Info.plist"; sourceTree = "<group>"; };
 		C3FD8181186DFD9A00FD8ED3 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		C3FD8183186DFD9A00FD8ED3 /* SimpleLineChartTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimpleLineChartTests.m; sourceTree = "<group>"; };
+		C84406E21ED6DF180011AA32 /* BEMMultiLineGraphView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMMultiLineGraphView.h; sourceTree = "<group>"; };
+		C84406E31ED6DF180011AA32 /* BEMMultiLineGraphView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMMultiLineGraphView.m; sourceTree = "<group>"; };
+		C8A1D1761ED6ED6E00751490 /* BEMGraphDataSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMGraphDataSet.h; sourceTree = "<group>"; };
+		C8A1D1771ED6ED6E00751490 /* BEMGraphDataSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMGraphDataSet.m; sourceTree = "<group>"; };
+		C8A1D1791ED6F86C00751490 /* BEMGraphOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMGraphOptions.h; sourceTree = "<group>"; };
+		C8A1D17A1ED6F86C00751490 /* BEMGraphOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMGraphOptions.m; sourceTree = "<group>"; };
+		C8E393A31EDB116700999986 /* BEMGraphCircle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMGraphCircle.h; sourceTree = "<group>"; };
+		C8E393A41EDB116700999986 /* BEMGraphCircle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMGraphCircle.m; sourceTree = "<group>"; };
+		C8E393A81EDB1F0300999986 /* BEMGraphLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BEMGraphLine.h; sourceTree = "<group>"; };
+		C8E393A91EDB1F0300999986 /* BEMGraphLine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BEMGraphLine.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,7 +124,12 @@
 		C3B90A55187D15F7003E407D /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				C851EDC11ED6EC7300EC309D /* Options */,
+				C8A1D1751ED6ED5700751490 /* DataSet */,
+				C8E393A11EDB0E5500999986 /* Components */,
 				C3B90A5C187D15F7003E407D /* BEMSimpleLineGraphView.h */,
+				C84406E21ED6DF180011AA32 /* BEMMultiLineGraphView.h */,
+				C84406E31ED6DF180011AA32 /* BEMMultiLineGraphView.m */,
 				C3B90A5D187D15F7003E407D /* BEMSimpleLineGraphView.m */,
 				C3B90A58187D15F7003E407D /* BEMCircle.h */,
 				C3B90A59187D15F7003E407D /* BEMCircle.m */,
@@ -203,6 +223,59 @@
 				C3FD8180186DFD9A00FD8ED3 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		C851EDC11ED6EC7300EC309D /* Options */ = {
+			isa = PBXGroup;
+			children = (
+				C8A1D1791ED6F86C00751490 /* BEMGraphOptions.h */,
+				C8A1D17A1ED6F86C00751490 /* BEMGraphOptions.m */,
+			);
+			path = Options;
+			sourceTree = "<group>";
+		};
+		C8A1D1751ED6ED5700751490 /* DataSet */ = {
+			isa = PBXGroup;
+			children = (
+				C8A1D1761ED6ED6E00751490 /* BEMGraphDataSet.h */,
+				C8A1D1771ED6ED6E00751490 /* BEMGraphDataSet.m */,
+			);
+			path = DataSet;
+			sourceTree = "<group>";
+		};
+		C8E393A11EDB0E5500999986 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C8E393A71EDB1EF600999986 /* Label */,
+				C8E393A61EDB1EE600999986 /* Line */,
+				C8E393A21EDB0E5500999986 /* Circle */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C8E393A21EDB0E5500999986 /* Circle */ = {
+			isa = PBXGroup;
+			children = (
+				C8E393A31EDB116700999986 /* BEMGraphCircle.h */,
+				C8E393A41EDB116700999986 /* BEMGraphCircle.m */,
+			);
+			path = Circle;
+			sourceTree = "<group>";
+		};
+		C8E393A61EDB1EE600999986 /* Line */ = {
+			isa = PBXGroup;
+			children = (
+				C8E393A81EDB1F0300999986 /* BEMGraphLine.h */,
+				C8E393A91EDB1F0300999986 /* BEMGraphLine.m */,
+			);
+			path = Line;
+			sourceTree = "<group>";
+		};
+		C8E393A71EDB1EF600999986 /* Label */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Label;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -306,14 +379,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				C3B90A61187D15F7003E407D /* BEMSimpleLineGraphView.m in Sources */,
+				C8E393AA1EDB1F0300999986 /* BEMGraphLine.m in Sources */,
 				C3B90A5F187D15F7003E407D /* BEMCircle.m in Sources */,
 				C3FD816F186DFD9A00FD8ED3 /* ViewController.m in Sources */,
 				C3B90A60187D15F7003E407D /* BEMLine.m in Sources */,
 				8AB8D62F1A7ABDF600FC4AEC /* BEMPermanentPopupView.m in Sources */,
+				C8A1D1781ED6ED6E00751490 /* BEMGraphDataSet.m in Sources */,
+				C8A1D17B1ED6F86C00751490 /* BEMGraphOptions.m in Sources */,
 				C3FD8169186DFD9A00FD8ED3 /* AppDelegate.m in Sources */,
+				C84406E41ED6DF180011AA32 /* BEMMultiLineGraphView.m in Sources */,
 				99B15643187B412400B24591 /* StatsViewController.m in Sources */,
 				A63990B51AD4923900B14D88 /* BEMAverageLine.m in Sources */,
 				C3FD8165186DFD9A00FD8ED3 /* main.m in Sources */,
+				C8E393A51EDB116700999986 /* BEMGraphCircle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
