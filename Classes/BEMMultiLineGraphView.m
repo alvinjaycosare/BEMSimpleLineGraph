@@ -563,7 +563,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
           [xAxisLabelPoints addObject:xAxisLabelCoordinate];
 
           [self addSubview:labelXAxis];
-//          [xAxisValues addObject:xAxisLabelText];
+          //          [xAxisValues addObject:xAxisLabelText];
         }
       }
     }
@@ -801,11 +801,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 }
 
 - (void)drawDots {
-  CGFloat positionOnXAxis; // The position on the X-axis of the point currently
-                           // being created.
-  CGFloat positionOnYAxis; // The position on the Y-axis of the point currently
-                           // being created.
-
   // Remove all dots that were previously on the graph
   for (UIView *subview in [self subviews]) {
     if ([subview isKindOfClass:[BEMCircle class]] ||
@@ -822,6 +817,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
   // Loop through each point and add it to the graph
   @autoreleasepool {
+
     for (int i = 0; i < self.maxNumberOfPoints; i++) {
       CGFloat dotValue = 0;
 
@@ -869,18 +865,22 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       CGFloat YAxisLabelXOffset =
           self.options.overlapYAxisWithGraph ? 0 : self.YAxisLabelXOffset;
 
-      if (self.options.positionYAxisRight) {
-        positionOnXAxis = (((self.frame.size.width - YAxisLabelXOffset) /
-                            (self.maxNumberOfPoints - 1)) *
-                           i);
-      } else {
-        positionOnXAxis = (((self.frame.size.width - YAxisLabelXOffset) /
-                            (self.maxNumberOfPoints - 1)) *
-                           i) +
-                          YAxisLabelXOffset;
-      }
+      // The position on the X-axis of the point currently
+      // being created.
+      CGFloat positionOnXAxis =
+          (self.options.positionYAxisRight)
+              ? (((self.frame.size.width - YAxisLabelXOffset) /
+                  (self.maxNumberOfPoints - 1)) *
+                 i)
 
-      positionOnYAxis = [self yPositionForDotValue:dotValue];
+              : (((self.frame.size.width - YAxisLabelXOffset) /
+                  (self.maxNumberOfPoints - 1)) *
+                 i) +
+                    YAxisLabelXOffset;
+
+      CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
+      // The position on the Y-axis of the point currently
+      // being created.
 
       [self.yAxisValues addObject:@(positionOnYAxis)];
 
@@ -895,24 +895,23 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
         circleDot.alpha = 0;
         circleDot.absoluteValue = dotValue;
         circleDot.Pointcolor = self.options.colorPoint;
-
         [self addSubview:circleDot];
-        if (self.options.alwaysDisplayPopUpLabels == YES) {
+
+        if (self.options.alwaysDisplayPopUpLabels) {
           if ([self.delegate
                   respondsToSelector:@selector(lineGraph:
                                          alwaysDisplayPopUpAtIndex:)]) {
-            if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i] ==
-                YES) {
+            if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i]) {
               [self displayPermanentLabelForPoint:circleDot];
             }
           } else
             [self displayPermanentLabelForPoint:circleDot];
         }
 
-        BOOL shouldHideDot = NO;
-        if ([self.delegate
-                respondsToSelector:@selector(lineGraph:hideDotAtIndex:)])
-          shouldHideDot = [self.delegate lineGraph:self hideDotAtIndex:i];
+        BOOL shouldHideDot =
+            ([self.delegate
+                 respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] &&
+             [self.delegate lineGraph:self hideDotAtIndex:i]);
 
         // Dot entrance animation
         if (self.options.animationGraphEntranceTime == 0) {
