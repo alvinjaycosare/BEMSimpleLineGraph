@@ -50,8 +50,10 @@
                                 : (self.options.widthLine / 2);
   self.lineAlpha = self.options.alphaLine;
   self.bezierCurveIsEnabled = self.options.enableBezierCurve;
-  self.arrayOfPoints = self.yAxisValues;
-  self.arrayOfValues = self.pointValues;
+  
+  self.arrayOfPoints = self.dataSet.yAxisValues;
+  self.arrayOfValues = self.dataSet.values;
+  
   self.lineDashPatternForReferenceYAxisLines =
       self.options.lineDashPatternForReferenceYAxisLines;
   self.lineDashPatternForReferenceXAxisLines =
@@ -74,6 +76,7 @@
     self.refrenceLineColor = self.options.colorReferenceLines;
     self.verticalReferenceHorizontalFringeNegation =
         self.xAxisHorizontalFringeNegationValue;
+    
     self.arrayOfVerticalRefrenceLinePoints =
         self.options.enableReferenceXAxisLines ? self.xAxisLabelPoints : nil;
     self.arrayOfHorizontalRefrenceLinePoints =

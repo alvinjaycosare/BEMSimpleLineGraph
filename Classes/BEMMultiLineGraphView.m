@@ -12,6 +12,7 @@
 #import "BEMGraphOptions.h"
 
 #import "BEMGraphCircle.h"
+#import "BEMGraphLine.h"
 
 typedef NS_ENUM(NSInteger, BEMInternalTags) {
   DotFirstTag100 = 100,
@@ -182,43 +183,20 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
     else if ([subview isKindOfClass:[UIView class]] &&
              subview.tag == BackgroundXAxisTag2200)
       [subview removeFromSuperview];
+    else
+      [subview removeFromSuperview];
   }
 }
 
 #pragma mark - Layout
 
 - (void)layoutNumberOfPoints {
-  // Get the total number of data points from the delegate
-  //    if ([self.dataSource
-  //    respondsToSelector:@selector(numberOfPointsInLineGraph:)]) {
-  //        numberOfPoints = [self.dataSource numberOfPointsInLineGraph:self];
-  //
-  //    } else if ([self.delegate
-  //    respondsToSelector:@selector(numberOfPointsInGraph)]) {
-  //        [self printDeprecationWarningForOldMethod:@"numberOfPointsInGraph"
-  //        andReplacementMethod:@"numberOfPointsInLineGraph:"];
-  //
-  //#pragma clang diagnostic push
-  //#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  //        numberOfPoints = [self.delegate numberOfPointsInGraph];
-  //#pragma clang diagnostic pop
-  //
-  //    } else if ([self.delegate
-  //    respondsToSelector:@selector(numberOfPointsInLineGraph:)]) {
-  //        [self
-  //        printDeprecationAndUnavailableWarningForOldMethod:@"numberOfPointsInLineGraph:"];
-  //        numberOfPoints = 0;
-  //
-  //    } else numberOfPoints = 0;
-
-  // There are no points to load
-
   if (self.numberOfPoints == 0) {
-    //        if (self.delegate &&
-    //            [self.delegate
-    //            respondsToSelector:@selector(noDataLabelEnableForLineGraph:)]
-    //            &&
-    //            ![self.delegate noDataLabelEnableForLineGraph:self]) return;
+    if (self.delegate &&
+        [self.delegate
+            respondsToSelector:@selector(noDataLabelEnableForLineGraph:)] &&
+        ![self.delegate noDataLabelEnableForLineGraph:self])
+      return;
 
     NSLog(@"[BEMSimpleLineGraph] Data source contains no data. A no data label "
           @"will be displayed and drawing will stop. Add data to the data "
@@ -596,15 +574,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 }
 
 - (void)drawYAxis {
-  for (UIView *subview in [self subviews]) {
-    if (([subview isKindOfClass:[UILabel class]] &&
-         subview.tag == LabelYAxisTag2000) ||
-        ([subview isKindOfClass:[UIView class]] &&
-         subview.tag == BackgroundYAxisTag2100)) {
-      [subview removeFromSuperview];
-    }
-  }
-
   CGRect frameForBackgroundYAxis =
       (self.options.positionYAxisRight)
           ? CGRectMake(self.frame.size.width - self.YAxisLabelXOffset, 0,
@@ -807,6 +776,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [subview removeFromSuperview];
   }
 
+  for (BEMGraphDataSet *dataSet in self.dataSets)
+    [dataSet resetPositionValues];
+
   CGFloat YAxisLabelXOffset =
       self.options.overlapYAxisWithGraph ? 0 : self.YAxisLabelXOffset;
 
@@ -903,7 +875,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       // The position on the Y-axis of the point currently
       // being created.
 
-      //      [self.yAxisValues addObject:@(positionOnYAxis)];
+      //            [self.yAxisValues addObject:@(positionOnYAxis)];
 
       for (BEMGraphDataSet *dataSet in self.dataSets) {
         CGFloat dotValue = dataSet.values[i].floatValue;
@@ -913,6 +885,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
           return;
 
         CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
+        [dataSet.yAxisValues addObject:@(positionOnYAxis)];
 
         addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i);
       }
@@ -924,6 +897,18 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 }
 
 - (void)drawLine {
+
+  for (BEMGraphDataSet *dataSet in self.dataSets) {
+
+    BEMGraphLine *line =
+        [[BEMGraphLine alloc] initWithFrame:self.drawableGraphArea];
+    line.options = self.options;
+    line.dataSet = dataSet;
+    line.yAxisLabelPoints = self.yAxisLabelPoints;
+    line.xAxisLabelPoints = self.xAxisLabelPoints;
+
+    [self insertSubview:line atIndex:0];
+  }
 }
 
 #pragma mark - Calculations

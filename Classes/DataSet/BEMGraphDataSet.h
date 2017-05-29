@@ -20,7 +20,11 @@
 
 @property(readonly, strong, nonatomic) NSArray<NSNumber *> *values;
 
+@property(readonly, strong, nonatomic) NSMutableArray<NSNumber *> *yAxisValues;
+
 - (instancetype)initWithValues:(NSArray<NSNumber *> *)values;
+
+- (void)resetPositionValues;
 
 /** Calculates the average (mean) of all points on the line graph.
  @return The average (mean) number of the points on the graph. Originally a

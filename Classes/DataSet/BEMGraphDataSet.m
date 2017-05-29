@@ -19,6 +19,8 @@
 - (instancetype)initWithValues:(NSArray<NSNumber *> *)values {
   if (self = [super init]) {
     _values = values;
+
+    _yAxisValues = [NSMutableArray array];
   }
   return self;
 }
@@ -46,6 +48,10 @@
   }
 
   return min;
+}
+
+- (void)resetPositionValues {
+  [self.yAxisValues removeAllObjects];
 }
 
 - (NSArray *)calculationDataPoints {

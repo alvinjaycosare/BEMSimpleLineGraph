@@ -31,8 +31,6 @@
 
 @property(strong, nonatomic) id<BEMMultiLineGraphViewDataSource> dataSource;
 
-@property(strong, nonatomic) id<BEMSimpleLineGraphDelegate> delegate;
-
 @property(strong, nonatomic) BEMGraphOptions *options;
 
 - (void)reloadGraph;

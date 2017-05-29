@@ -19,10 +19,6 @@
 
 @property(strong, nonatomic) BEMGraphDataSet *dataSet;
 
-@property(strong, nonatomic) NSArray *yAxisValues;
-
-@property(strong, nonatomic) NSArray *pointValues;
-
 @property(strong, nonatomic) NSArray *xAxisLabelPoints;
 @property(strong, nonatomic) NSArray *yAxisLabelPoints;
 
