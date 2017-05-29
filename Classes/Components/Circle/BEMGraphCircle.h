@@ -12,6 +12,12 @@
 
 @interface BEMGraphCircle : BEMCircle
 
+@property(strong, nonatomic) NSString *labelPrefix;
+
+@property(strong, nonatomic) NSString *labelSuffix;
+
+@property (strong, nonatomic) CGFloat yAxisLabelOffset;
+
 @property(strong, nonatomic) BEMGraphOptions *options;
 
 @property(nonatomic) BOOL shouldShowCircleLabel;

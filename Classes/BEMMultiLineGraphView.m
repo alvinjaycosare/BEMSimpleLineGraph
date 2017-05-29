@@ -11,7 +11,7 @@
 #import "BEMGraphDataSet.h"
 #import "BEMGraphOptions.h"
 
-#import "BEMSimpleLineGraphView.h"
+#import "BEMGraphCircle.h"
 
 typedef NS_ENUM(NSInteger, BEMInternalTags) {
   DotFirstTag100 = 100,
@@ -45,11 +45,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 @property(nonatomic) NSMutableArray *xAxisLabels;
 @property(nonatomic) NSMutableArray *xAxisValues;
 
-@property(nonatomic) CGFloat xCenterLabel;
-@property(nonatomic) CGFloat yCenterLabel;
-
 @property(nonatomic) NSMutableArray *yAxisLabels;
-@property(nonatomic) NSMutableArray *yAxisValues;
 
 @property(nonatomic) NSMutableArray *xAxisLabelPoints;
 @property(nonatomic) NSMutableArray *yAxisLabelPoints;
@@ -595,6 +591,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [l removeFromSuperview];
     }
   }
+
+  [self.xAxisLabels addObjectsFromArray:xAxisLabels];
 }
 
 - (void)drawYAxis {
@@ -809,61 +807,85 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [subview removeFromSuperview];
   }
 
-  //    // Remove all data points before adding them to the array
-  //    [dataPoints removeAllObjects];
+  CGFloat YAxisLabelXOffset =
+      self.options.overlapYAxisWithGraph ? 0 : self.YAxisLabelXOffset;
 
-  // Remove all yAxis values before adding them to the array
-  [self.yAxisValues removeAllObjects];
+  void (^addCircleDotView)(CGFloat, CGFloat, CGFloat, NSUInteger) = ^(
+      CGFloat xAxisPos, CGFloat yAxisPos, CGFloat value,
+      NSUInteger xAxisIndex) {
+
+    NSUInteger i = xAxisIndex;
+
+    BEMGraphCircle *circleDot = [[BEMGraphCircle alloc] initWithValue:@(value)];
+    circleDot.frame =
+        CGRectMake(0, 0, self.options.sizePoint, self.options.sizePoint);
+    circleDot.center = CGPointMake(xAxisPos, yAxisPos);
+    circleDot.alpha = 0;
+    circleDot.absoluteValue = value;
+    circleDot.Pointcolor = self.options.colorPoint;
+    circleDot.yAxisLabelOffset = YAxisLabelXOffset;
+
+    BOOL shouldDisplayLabel = self.options.alwaysDisplayDots;
+    shouldDisplayLabel &=
+        ([self.delegate
+            respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)])
+            ? [self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i]
+            : shouldDisplayLabel;
+    circleDot.shouldShowCircleLabel = shouldDisplayLabel;
+
+    //    circleDot.labelPrefix = ([self.delegate
+    //    respondsToSelector:@selector(linegaph)])
+    circleDot.labelSuffix =
+        ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
+            ? [self.delegate popUpSuffixForlineGraph:self]
+            : @"";
+
+    circleDot.labelPrefix =
+        ([self.delegate respondsToSelector:@selector(popUpPrefixForlineGraph:)])
+            ? [self.delegate popUpPrefixForlineGraph:self]
+            : @"";
+
+    [self addSubview:circleDot];
+
+    BOOL shouldHideDot =
+        ([self.delegate
+             respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] &&
+         [self.delegate lineGraph:self hideDotAtIndex:i]);
+
+    // Dot entrance animation
+    if (self.options.animationGraphEntranceTime == 0) {
+      circleDot.alpha =
+          (self.options.displayDotsOnly) ? 1.0f : (shouldHideDot) ? 0 : 1.0f;
+    } else {
+      if (self.options.displayDotsWhileAnimating && !shouldHideDot) {
+        [UIView animateWithDuration:self.options.animationGraphEntranceTime /
+                                    self.maxNumberOfPoints
+            delay:(float)i * ((float)self.options.animationGraphEntranceTime /
+                              self.maxNumberOfPoints)
+            options:UIViewAnimationOptionCurveLinear
+            animations:^{
+              circleDot.alpha = 1.0;
+            }
+            completion:^(BOOL finished) {
+              if (self.options.alwaysDisplayDots == NO &&
+                  self.options.displayDotsOnly == NO) {
+                [UIView animateWithDuration:0.3
+                                      delay:0
+                                    options:UIViewAnimationOptionCurveEaseOut
+                                 animations:^{
+                                   circleDot.alpha = 0;
+                                 }
+                                 completion:nil];
+              }
+            }];
+      }
+    }
+  };
 
   // Loop through each point and add it to the graph
   @autoreleasepool {
 
     for (int i = 0; i < self.maxNumberOfPoints; i++) {
-      CGFloat dotValue = 0;
-
-#if !TARGET_INTERFACE_BUILDER
-      if ([self.dataSource
-              respondsToSelector:@selector(lineGraph:valueForPointAtIndex:)]) {
-        dotValue = [self.dataSource lineGraph:self valueForPointAtIndex:i];
-
-      } else if ([self.delegate respondsToSelector:@selector(valueForIndex:)]) {
-        [self printDeprecationWarningForOldMethod:@"valueForIndex:"
-                             andReplacementMethod:
-                                 @"lineGraph:valueForPointAtIndex:"];
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        dotValue = [self.delegate valueForIndex:i];
-#pragma clang diagnostic pop
-
-      } else if ([self.delegate
-                     respondsToSelector:@selector(lineGraph:
-                                            valueForPointAtIndex:)]) {
-        [self printDeprecationAndUnavailableWarningForOldMethod:
-                  @"lineGraph:valueForPointAtIndex:"];
-        NSException *exception = [NSException
-            exceptionWithName:@"Implementing Unavailable Delegate Method"
-                       reason:@"lineGraph:valueForPointAtIndex: is no longer "
-                              @"available on the delegate. It must be "
-                              @"implemented on the data source."
-                     userInfo:nil];
-        [exception raise];
-
-      } else
-        [NSException raise:@"lineGraph:valueForPointAtIndex: protocol method "
-                           @"is not implemented in the data source. Throwing "
-                           @"exception here before the system throws a "
-                           @"CALayerInvalidGeometry Exception."
-                    format:@"Value for point %f at index %lu is invalid. "
-                           @"CALayer position may contain NaN: [0 nan]",
-                           dotValue, (unsigned long)i];
-#else
-      dotValue = (int)(arc4random() % 10000);
-#endif
-      //            [dataPoints addObject:@(dotValue)];
-
-      CGFloat YAxisLabelXOffset =
-          self.options.overlapYAxisWithGraph ? 0 : self.YAxisLabelXOffset;
 
       // The position on the X-axis of the point currently
       // being created.
@@ -878,78 +900,21 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
                  i) +
                     YAxisLabelXOffset;
 
-      CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
       // The position on the Y-axis of the point currently
       // being created.
 
-      [self.yAxisValues addObject:@(positionOnYAxis)];
+      //      [self.yAxisValues addObject:@(positionOnYAxis)];
 
-      // If we're dealing with an null value, don't draw the dot
+      for (BEMGraphDataSet *dataSet in self.dataSets) {
+        CGFloat dotValue = dataSet.values[i].floatValue;
 
-      if (dotValue != BEMNullGraphValue) {
-        BEMCircle *circleDot = [[BEMCircle alloc]
-            initWithFrame:CGRectMake(0, 0, self.options.sizePoint,
-                                     self.options.sizePoint)];
-        circleDot.center = CGPointMake(positionOnXAxis, positionOnYAxis);
-        circleDot.tag = i + DotFirstTag100;
-        circleDot.alpha = 0;
-        circleDot.absoluteValue = dotValue;
-        circleDot.Pointcolor = self.options.colorPoint;
-        [self addSubview:circleDot];
+        // If we're dealing with an null value, don't draw the dot
+        if (dotValue == BEMNullGraphValue)
+          return;
 
-        if (self.options.alwaysDisplayPopUpLabels) {
-          if ([self.delegate
-                  respondsToSelector:@selector(lineGraph:
-                                         alwaysDisplayPopUpAtIndex:)]) {
-            if ([self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i]) {
-              [self displayPermanentLabelForPoint:circleDot];
-            }
-          } else
-            [self displayPermanentLabelForPoint:circleDot];
-        }
+        CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
 
-        BOOL shouldHideDot =
-            ([self.delegate
-                 respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] &&
-             [self.delegate lineGraph:self hideDotAtIndex:i]);
-
-        // Dot entrance animation
-        if (self.options.animationGraphEntranceTime == 0) {
-          if (self.options.displayDotsOnly == YES)
-            circleDot.alpha = 1.0;
-          else {
-            if (self.options.alwaysDisplayDots == NO || shouldHideDot)
-              circleDot.alpha = 0;
-            else
-              circleDot.alpha = 1.0;
-          }
-        } else {
-          if (self.options.displayDotsWhileAnimating && !shouldHideDot) {
-            [UIView
-                animateWithDuration:self.options.animationGraphEntranceTime /
-                                    self.maxNumberOfPoints
-                delay:(float)i *
-                      ((float)self.options.animationGraphEntranceTime /
-                       self.maxNumberOfPoints)
-                options:UIViewAnimationOptionCurveLinear
-                animations:^{
-                  circleDot.alpha = 1.0;
-                }
-                completion:^(BOOL finished) {
-                  if (self.options.alwaysDisplayDots == NO &&
-                      self.options.displayDotsOnly == NO) {
-                    [UIView
-                        animateWithDuration:0.3
-                                      delay:0
-                                    options:UIViewAnimationOptionCurveEaseOut
-                                 animations:^{
-                                   circleDot.alpha = 0;
-                                 }
-                                 completion:nil];
-                  }
-                }];
-          }
-        }
+        addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i);
       }
     }
   }
@@ -1018,102 +983,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 }
 
 #pragma mark - Misc
-
-- (void)displayPermanentLabelForPoint:(BEMCircle *)circleDot {
-  self.options.enablePopUpReport = NO;
-  self.xCenterLabel = circleDot.center.x;
-
-  BEMPermanentPopupLabel *permanentPopUpLabel =
-      [[BEMPermanentPopupLabel alloc] init];
-  permanentPopUpLabel.textAlignment = NSTextAlignmentCenter;
-  permanentPopUpLabel.numberOfLines = 0;
-
-  NSString *prefix = @"";
-  NSString *suffix = @"";
-
-  if ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
-    suffix = [self.delegate popUpSuffixForlineGraph:self];
-
-  if ([self.delegate respondsToSelector:@selector(popUpPrefixForlineGraph:)])
-    prefix = [self.delegate popUpPrefixForlineGraph:self];
-
-  int index = (int)(circleDot.tag - DotFirstTag100);
-  //  NSNumber *value = dataPoints[index]; // @((NSInteger)
-  //  circleDot.absoluteValue)
-  NSNumber *value = @0;
-  NSString *formattedValue = [NSString
-      stringWithFormat:self.options.formatStringForValues, value.doubleValue];
-  permanentPopUpLabel.text =
-      [NSString stringWithFormat:@"%@%@%@", prefix, formattedValue, suffix];
-
-  permanentPopUpLabel.font = self.options.labelFont;
-  permanentPopUpLabel.backgroundColor = [UIColor clearColor];
-  [permanentPopUpLabel sizeToFit];
-  permanentPopUpLabel.center =
-      CGPointMake(self.xCenterLabel,
-                  circleDot.center.y - circleDot.frame.size.height / 2 - 15);
-  permanentPopUpLabel.alpha = 0;
-
-  BEMPermanentPopupView *permanentPopUpView = [[BEMPermanentPopupView alloc]
-      initWithFrame:CGRectMake(0, 0, permanentPopUpLabel.frame.size.width + 7,
-                               permanentPopUpLabel.frame.size.height + 2)];
-  permanentPopUpView.backgroundColor = self.options.colorBackgroundPopUplabel;
-  permanentPopUpView.alpha = 0;
-  permanentPopUpView.layer.cornerRadius = 3;
-  permanentPopUpView.tag = PermanentPopUpViewTag3100;
-  permanentPopUpView.center = permanentPopUpLabel.center;
-
-  if (permanentPopUpLabel.frame.origin.x <= 0) {
-    self.xCenterLabel = permanentPopUpLabel.frame.size.width / 2 + 4;
-    permanentPopUpLabel.center =
-        CGPointMake(self.xCenterLabel,
-                    circleDot.center.y - circleDot.frame.size.height / 2 - 15);
-  } else if (self.options.enableYAxisLabel == YES &&
-             permanentPopUpLabel.frame.origin.x <= self.YAxisLabelXOffset) {
-    self.xCenterLabel = permanentPopUpLabel.frame.size.width / 2 + 4;
-    permanentPopUpLabel.center =
-        CGPointMake(self.xCenterLabel + self.YAxisLabelXOffset,
-                    circleDot.center.y - circleDot.frame.size.height / 2 - 15);
-  } else if ((permanentPopUpLabel.frame.origin.x +
-              permanentPopUpLabel.frame.size.width) >= self.frame.size.width) {
-    self.xCenterLabel =
-        self.frame.size.width - permanentPopUpLabel.frame.size.width / 2 - 4;
-    permanentPopUpLabel.center =
-        CGPointMake(self.xCenterLabel,
-                    circleDot.center.y - circleDot.frame.size.height / 2 - 15);
-  }
-
-  if (permanentPopUpLabel.frame.origin.y <= 2) {
-    permanentPopUpLabel.center =
-        CGPointMake(self.xCenterLabel,
-                    circleDot.center.y + circleDot.frame.size.height / 2 + 15);
-  }
-
-  if ([self checkOverlapsForView:permanentPopUpView] == YES) {
-    permanentPopUpLabel.center =
-        CGPointMake(self.xCenterLabel,
-                    circleDot.center.y + circleDot.frame.size.height / 2 + 15);
-  }
-
-  permanentPopUpView.center = permanentPopUpLabel.center;
-
-  [self addSubview:permanentPopUpView];
-  [self addSubview:permanentPopUpLabel];
-
-  if (self.options.animationGraphEntranceTime == 0) {
-    permanentPopUpLabel.alpha = 1;
-    permanentPopUpView.alpha = 0.7;
-  } else {
-    [UIView animateWithDuration:0.5
-                          delay:self.options.animationGraphEntranceTime
-                        options:UIViewAnimationOptionCurveLinear
-                     animations:^{
-                       permanentPopUpLabel.alpha = 1;
-                       permanentPopUpView.alpha = 0.7;
-                     }
-                     completion:nil];
-  }
-}
 
 - (BOOL)checkOverlapsForView:(UIView *)view {
   for (UIView *viewForLabel in [self subviews]) {
