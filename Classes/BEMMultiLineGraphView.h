@@ -15,21 +15,21 @@
 @class BEMGraphDataSet;
 
 @protocol BEMSimpleLineGraphDelegate;
+@protocol BEMSimpleLineGraphDataSource;
 
-@protocol BEMMultiLineGraphViewDataSource <BEMSimpleLineGraphDataSource>
+@protocol BEMMultiLineGraphViewDataSource <NSObject>
 
-@required
-- (NSUInteger)numberOfLinesInGraph;
-
-@required
-- (BEMGraphDataSet *)lineGraph:(BEMMultiLineGraphView *)lineGraph
-    dataSetForPointAtLineSection:(NSUInteger)section;
+- (BEMGraphOptions *)multiLineGraph:(BEMMultiLineGraphView *)lineGraph
+       viewOptionsOfLineWithDataSet:(BEMGraphDataSet *)dataSet;
 
 @end
 
 @interface BEMMultiLineGraphView : BEMSimpleLineGraphView
 
-@property(strong, nonatomic) id<BEMMultiLineGraphViewDataSource> dataSource;
+@property(weak, nonatomic) IBOutlet id<BEMMultiLineGraphViewDataSource>
+    multiLineDataSource;
+
+@property(strong, nonatomic) NSArray<BEMGraphDataSet *> *dataSets;
 
 @property(strong, nonatomic) BEMGraphOptions *options;
 

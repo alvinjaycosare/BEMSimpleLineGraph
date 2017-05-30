@@ -16,7 +16,7 @@
 
 @property(strong, nonatomic) NSString *labelSuffix;
 
-@property (strong, nonatomic) CGFloat yAxisLabelOffset;
+@property(nonatomic) CGFloat yAxisLabelOffset;
 
 @property(strong, nonatomic) BEMGraphOptions *options;
 

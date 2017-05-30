@@ -25,8 +25,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
 @interface BEMMultiLineGraphView ()
 
-@property(strong, nonatomic) NSArray<BEMGraphDataSet *> *dataSets;
-
 @property(nonatomic) NSUInteger numberOfPoints;
 @property(nonatomic) NSUInteger maxNumberOfPoints;
 
@@ -52,6 +50,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 @property(nonatomic) NSMutableArray *yAxisLabelPoints;
 
 @property(nonatomic) CGRect drawableGraphArea;
+@property(nonatomic) CGRect drawableXAxisArea;
 
 @property(weak, nonatomic) UIView *backgroundXAxis;
 
@@ -107,6 +106,13 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   self.maxNumberOfPoints = NSUIntegerMax;
 }
 
+- (void)layoutSubviews {
+
+  [self setupConstant];
+
+  [super layoutSubviews];
+}
+
 #pragma mark - Setters
 
 - (void)setOptions:(BEMGraphOptions *)options {
@@ -127,27 +133,44 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   CGRect rect = CGRectMake(xOrigin, 0, viewWidth, adjustedHeight);
   self.drawableGraphArea = rect;
 
-  [self onInit];
+  self.drawableXAxisArea =
+      CGRectMake(xOrigin, self.bounds.size.height - xAxisHeight,
+                 CGRectGetWidth(rect) + 1, xAxisHeight);
 }
 
 - (void)reloadGraph {
-  [self removeGraphViewsIfNeeded];
-  [self setupGraphData];
+  if (!self.dataSets || self.dataSets.count == 0)
+    return;
+
   [self drawGraph];
 }
 
-- (void)setupGraphData {
-  NSMutableArray<BEMGraphDataSet *> *dataSets = [NSMutableArray array];
-  for (NSUInteger i = 0; i < [self.dataSource numberOfLinesInGraph]; i++) {
-    [dataSets addObject:[self.dataSource lineGraph:self
-                            dataSetForPointAtLineSection:i]];
+- (void)setDataSets:(NSArray<BEMGraphDataSet *> *)dataSets {
+  _dataSets = dataSets;
+
+  NSUInteger maxNumberOfPoints = 0;
+  NSUInteger numberOfPoints = 0;
+
+  CGFloat min = CGFLOAT_MAX;
+  CGFloat max = CGFLOAT_MIN;
+
+  for (BEMGraphDataSet *dataSet in self.dataSets) {
+    maxNumberOfPoints = MAX(dataSet.count, maxNumberOfPoints);
+    numberOfPoints += dataSet.values.count;
+    min = MIN(min, dataSet.minValue);
+    max = MAX(max, dataSet.maxValue);
   }
-  self.dataSets = dataSets;
+  self.numberOfPoints = numberOfPoints;
+  self.maxNumberOfPoints = maxNumberOfPoints;
+  self.maxValue = max;
+  self.minValue = min;
 }
 
 #pragma mark - Draw
 
 - (void)drawGraph {
+  [self removeGraphViewsIfNeeded];
+
   // Let the delegate know that the graph began layout updates
   if ([self.delegate respondsToSelector:@selector(lineGraphDidBeginLoading:)])
     [self.delegate lineGraphDidBeginLoading:self];
@@ -174,17 +197,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 - (void)removeGraphViewsIfNeeded {
   // Remove all dots that were previously on the graph
   for (UILabel *subview in [self subviews]) {
-
-    if ([subview isEqual:self.noDataLabel])
-      [subview removeFromSuperview];
-    else if ([subview isKindOfClass:[UILabel class]] &&
-             subview.tag == DotLastTag1000)
-      [subview removeFromSuperview];
-    else if ([subview isKindOfClass:[UIView class]] &&
-             subview.tag == BackgroundXAxisTag2200)
-      [subview removeFromSuperview];
-    else
-      [subview removeFromSuperview];
+    [subview removeFromSuperview];
   }
 }
 
@@ -244,19 +257,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
     if ([self.delegate
             respondsToSelector:@selector(lineGraphDidFinishLoading:)])
       [self.delegate lineGraphDidFinishLoading:self];
-    return;
-
-  } else if (self.numberOfPoints == 1) {
-    NSLog(@"[BEMSimpleLineGraph] Data source contains only one data point. Add "
-          @"more data to the data source and then reload the graph.");
-    BEMCircle *circleDot = [[BEMCircle alloc]
-        initWithFrame:CGRectMake(0, 0, self.options.sizePoint,
-                                 self.options.sizePoint)];
-    circleDot.center =
-        CGPointMake(self.frame.size.width / 2, self.frame.size.height / 2);
-    circleDot.Pointcolor = self.options.colorPoint;
-    circleDot.alpha = 1;
-    [self addSubview:circleDot];
     return;
   }
 }
@@ -515,30 +515,28 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [xAxisLabelPoints addObject:xLastAxisLabelCoordinate];
 
     } else {
-      @autoreleasepool {
-        NSInteger offset = [self
-            offsetForXAxisWithNumberOfGaps:numberOfGaps]; // The offset (if
-                                                          // possible and
-                                                          // necessary) used to
-                                                          // shift the Labels on
-                                                          // the X-Axis for them
-                                                          // to be centered.
+      NSInteger offset =
+          [self offsetForXAxisWithNumberOfGaps:numberOfGaps]; // The offset (if
+                                                              // possible and
+      // necessary) used to
+      // shift the Labels on
+      // the X-Axis for them
+      // to be centered.
 
-        for (int i = 1; i <= (self.maxNumberOfPoints / numberOfGaps); i++) {
-          NSInteger index = i * numberOfGaps - 1 - offset;
+      for (int i = 1; i <= (self.maxNumberOfPoints / numberOfGaps); i++) {
+        NSInteger index = i * numberOfGaps - 1 - offset;
 
-          UILabel *labelXAxis = [self xAxisLabelatIndex:index];
-          [xAxisLabels addObject:labelXAxis];
+        UILabel *labelXAxis = [self xAxisLabelatIndex:index];
+        [xAxisLabels addObject:labelXAxis];
 
-          NSNumber *xAxisLabelCoordinate =
-              (self.options.positionYAxisRight)
-                  ? @(labelXAxis.center.x)
-                  : @(labelXAxis.center.x - self.YAxisLabelXOffset);
-          [xAxisLabelPoints addObject:xAxisLabelCoordinate];
+        NSNumber *xAxisLabelCoordinate =
+            (self.options.positionYAxisRight)
+                ? @(labelXAxis.center.x)
+                : @(labelXAxis.center.x - self.YAxisLabelXOffset);
+        [xAxisLabelPoints addObject:xAxisLabelCoordinate];
 
-          [self addSubview:labelXAxis];
-          //          [xAxisValues addObject:xAxisLabelText];
-        }
+        [self addSubview:labelXAxis];
+        //          [xAxisValues addObject:xAxisLabelText];
       }
     }
   }
@@ -574,11 +572,12 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 }
 
 - (void)drawYAxis {
-  CGRect frameForBackgroundYAxis =
-      (self.options.positionYAxisRight)
-          ? CGRectMake(self.frame.size.width - self.YAxisLabelXOffset, 0,
-                       self.YAxisLabelXOffset, self.frame.size.height)
-          : CGRectMake(0, 0, self.YAxisLabelXOffset, self.frame.size.height);
+  //  CGRect frameForBackgroundYAxis =
+  //      (self.options.positionYAxisRight)
+  //          ? CGRectMake(self.frame.size.width - self.YAxisLabelXOffset, 0,
+  //                       self.YAxisLabelXOffset, self.frame.size.height)
+  //          : CGRectMake(0, 0, self.YAxisLabelXOffset,
+  //          self.frame.size.height);
 
   CGRect frameForLabelYAxis =
       (self.options.positionYAxisRight)
@@ -590,17 +589,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       (self.options.positionYAxisRight)
           ? self.frame.size.width - self.YAxisLabelXOffset / 2
           : (self.YAxisLabelXOffset / 2) + self.options.marginLeftYAxisLabel;
-
-  if (!self.options.overlapYAxisWithGraph) {
-    UIView *backgroundYaxis =
-        [[UIView alloc] initWithFrame:frameForBackgroundYAxis];
-    backgroundYaxis.tag = BackgroundYAxisTag2100;
-    backgroundYaxis.backgroundColor = (self.options.colorBackgroundYaxis == nil)
-                                          ? self.options.colorTop
-                                          : self.options.colorBackgroundYaxis;
-    backgroundYaxis.alpha = self.options.alphaBackgroundYaxis;
-    [self addSubview:backgroundYaxis];
-  }
 
   NSMutableArray *yAxisLabels = [NSMutableArray arrayWithCapacity:0];
   [self.yAxisLabelPoints removeAllObjects];
@@ -648,9 +636,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
         [dotValues addObject:@(yAxisPosition)];
         yAxisPosition += increment;
       }
-    } else if (numberOfLabels <= 0)
+    } else if (numberOfLabels <= 0) {
       return;
-    else if (numberOfLabels == 1) {
+    } else if (numberOfLabels == 1) {
       [dotValues removeAllObjects];
       [dotValues addObject:[NSNumber numberWithInt:(minimumValue.intValue +
                                                     maximumValue.intValue) /
@@ -682,6 +670,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       labelYAxis.tag = LabelYAxisTag2000;
       labelYAxis.center = CGPointMake(xValueForCenterLabelYAxis, yAxisPosition);
       [self addSubview:labelYAxis];
+
       [yAxisLabels addObject:labelYAxis];
 
       NSNumber *yAxisLabelCoordinate = @(labelYAxis.center.y);
@@ -708,8 +697,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       labelYAxis.textColor = self.options.colorYaxisLabel;
       labelYAxis.backgroundColor = [UIColor clearColor];
       labelYAxis.tag = LabelYAxisTag2000;
-
-      //            [self addSubview:labelYAxis];
+      [self addSubview:labelYAxis];
 
       [yAxisLabels addObject:labelYAxis];
 
@@ -765,17 +753,11 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
             [self.delegate lineGraphDidFinishDrawing:self];
         }
       });
+
+  [self didFinishDrawingIncludingYAxis:YES];
 }
 
 - (void)drawDots {
-  // Remove all dots that were previously on the graph
-  for (UIView *subview in [self subviews]) {
-    if ([subview isKindOfClass:[BEMCircle class]] ||
-        [subview isKindOfClass:[BEMPermanentPopupView class]] ||
-        [subview isKindOfClass:[BEMPermanentPopupLabel class]])
-      [subview removeFromSuperview];
-  }
-
   for (BEMGraphDataSet *dataSet in self.dataSets)
     [dataSet resetPositionValues];
 
@@ -793,8 +775,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
         CGRectMake(0, 0, self.options.sizePoint, self.options.sizePoint);
     circleDot.center = CGPointMake(xAxisPos, yAxisPos);
     circleDot.alpha = 0;
+    circleDot.options = self.options;
     circleDot.absoluteValue = value;
-    circleDot.Pointcolor = self.options.colorPoint;
     circleDot.yAxisLabelOffset = YAxisLabelXOffset;
 
     BOOL shouldDisplayLabel = self.options.alwaysDisplayDots;
@@ -817,6 +799,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
             ? [self.delegate popUpPrefixForlineGraph:self]
             : @"";
 
+    circleDot.shouldShowCircleLabel = i == 0;
     [self addSubview:circleDot];
 
     BOOL shouldHideDot =
@@ -854,46 +837,42 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
     }
   };
 
-  // Loop through each point and add it to the graph
-  @autoreleasepool {
+  for (int i = 0; i < self.maxNumberOfPoints; i++) {
 
-    for (int i = 0; i < self.maxNumberOfPoints; i++) {
+    // The position on the X-axis of the point currently
+    // being created.
+    CGFloat positionOnXAxis =
+        (self.options.positionYAxisRight)
+            ? (((self.frame.size.width - YAxisLabelXOffset) /
+                (self.maxNumberOfPoints - 1)) *
+               i)
 
-      // The position on the X-axis of the point currently
-      // being created.
-      CGFloat positionOnXAxis =
-          (self.options.positionYAxisRight)
-              ? (((self.frame.size.width - YAxisLabelXOffset) /
-                  (self.maxNumberOfPoints - 1)) *
-                 i)
+            : (((self.frame.size.width - YAxisLabelXOffset) /
+                (self.maxNumberOfPoints - 1)) *
+               i) +
+                  YAxisLabelXOffset;
 
-              : (((self.frame.size.width - YAxisLabelXOffset) /
-                  (self.maxNumberOfPoints - 1)) *
-                 i) +
-                    YAxisLabelXOffset;
+    // The position on the Y-axis of the point currently
+    // being created.
 
-      // The position on the Y-axis of the point currently
-      // being created.
+    //            [self.yAxisValues addObject:@(positionOnYAxis)];
 
-      //            [self.yAxisValues addObject:@(positionOnYAxis)];
+    for (BEMGraphDataSet *dataSet in self.dataSets) {
+      CGFloat dotValue = dataSet.values[i].floatValue;
 
-      for (BEMGraphDataSet *dataSet in self.dataSets) {
-        CGFloat dotValue = dataSet.values[i].floatValue;
+      // If we're dealing with an null value, don't draw the dot
+      if (dotValue == BEMNullGraphValue)
+        return;
 
-        // If we're dealing with an null value, don't draw the dot
-        if (dotValue == BEMNullGraphValue)
-          return;
+      CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
+      [dataSet.yAxisValues addObject:@(positionOnYAxis)];
 
-        CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
-        [dataSet.yAxisValues addObject:@(positionOnYAxis)];
-
-        addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i);
-      }
+      addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i);
     }
   }
 
-  // CREATION OF THE LINE AND BOTTOM AND TOP FILL
-  [self drawLine];
+  //  // CREATION OF THE LINE AND BOTTOM AND TOP FILL
+  //  [self drawLine];
 }
 
 - (void)drawLine {
@@ -902,13 +881,25 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
     BEMGraphLine *line =
         [[BEMGraphLine alloc] initWithFrame:self.drawableGraphArea];
-    line.options = self.options;
     line.dataSet = dataSet;
     line.yAxisLabelPoints = self.yAxisLabelPoints;
     line.xAxisLabelPoints = self.xAxisLabelPoints;
+    line.averageLineYCoordinate =
+        (line.averageLine.enableAverageLine)
+            ? [self yPositionForDotValue:self.averageLine.yValue]
+            : 0;
+
+    line.options = ([self.multiLineDataSource
+                       respondsToSelector:@selector(multiLineGraph:
+                                              viewOptionsOfLineWithDataSet:)])
+                       ? [self.multiLineDataSource multiLineGraph:self
+                                     viewOptionsOfLineWithDataSet:dataSet]
+                       : self.options;
 
     [self insertSubview:line atIndex:0];
   }
+
+  [self didFinishDrawingIncludingYAxis:NO];
 }
 
 #pragma mark - Calculations
@@ -963,8 +954,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
           [longestString sizeWithAttributes:attributes].width + 5;
     }
 
-  } else
+  } else {
     self.YAxisLabelXOffset = 0;
+  }
 }
 
 #pragma mark - Misc
@@ -1159,9 +1151,29 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   return labelXAxis;
 }
 
-#pragma mark - Event Hnadl
+#pragma mark - Event Handler
 
 - (void)didFinishDrawingIncludingYAxis:(BOOL)yAxisFinishedDrawing {
+  dispatch_after(
+      dispatch_time(DISPATCH_TIME_NOW,
+                    self.animationGraphEntranceTime * NSEC_PER_SEC),
+      dispatch_get_main_queue(), ^{
+        if (self.enableYAxisLabel == NO) {
+          // Let the delegate know that the graph finished rendering
+          if ([self.delegate
+                  respondsToSelector:@selector(lineGraphDidFinishDrawing:)])
+            [self.delegate lineGraphDidFinishDrawing:self];
+          return;
+        } else {
+          if (yAxisFinishedDrawing == YES) {
+            // Let the delegate know that the graph finished rendering
+            if ([self.delegate
+                    respondsToSelector:@selector(lineGraphDidFinishDrawing:)])
+              [self.delegate lineGraphDidFinishDrawing:self];
+            return;
+          }
+        }
+      });
 }
 
 #pragma mark - Utils
@@ -1172,49 +1184,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   else
     return
         [NSString stringWithFormat:self.options.formatStringForValues, value];
-}
-
-- (NSUInteger)numberOfPoints {
-  if (_numberOfPoints != NSUIntegerMax) {
-    return _numberOfPoints;
-  }
-
-  NSUInteger numberOfPoints = 0;
-  for (BEMGraphDataSet *dataSet in self.dataSets) {
-    numberOfPoints += dataSet.values.count;
-  }
-  _numberOfPoints = numberOfPoints;
-
-  return _numberOfPoints;
-}
-
-- (NSUInteger)maxNumberOfPoints {
-  if (_maxNumberOfPoints != NSUIntegerMax)
-    return _maxNumberOfPoints;
-
-  NSUInteger maxNumberOfPoints = NSUIntegerMax;
-  for (BEMGraphDataSet *dataSet in self.dataSets) {
-    maxNumberOfPoints = MAX(dataSet.count, maxNumberOfPoints);
-  }
-  _maxNumberOfPoints = maxNumberOfPoints;
-
-  return _maxNumberOfPoints;
-}
-
-- (CGFloat)minPoint {
-  CGFloat min = CGFLOAT_MAX;
-  for (BEMGraphDataSet *dataSet in self.dataSets) {
-    min = MIN(min, dataSet.minValue);
-  }
-  return min;
-}
-
-- (CGFloat)maxPoint {
-  CGFloat max = CGFLOAT_MIN;
-  for (BEMGraphDataSet *dataSet in self.dataSets) {
-    max = MAX(max, dataSet.maxValue);
-  }
-  return max;
 }
 
 - (NSInteger)offsetForXAxisWithNumberOfGaps:(NSInteger)numberOfGaps {

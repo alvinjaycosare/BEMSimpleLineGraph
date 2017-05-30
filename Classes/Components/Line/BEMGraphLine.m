@@ -35,10 +35,27 @@
   self.backgroundColor = [UIColor clearColor];
 }
 
+- (void)setDataSet:(BEMGraphDataSet *)dataSet {
+  _dataSet = dataSet;
+
+  self.arrayOfPoints = dataSet.yAxisValues;
+  self.arrayOfValues = dataSet.values;
+
+  BEMAverageLine *averageLine = [[BEMAverageLine alloc] init];
+
+  if (self.averageLine.enableAverageLine == YES) {
+    if (self.averageLine.yValue == 0.0)
+      self.averageLine.yValue =
+          [self.dataSet calculatePointValueAverage].floatValue;
+    self.averageLine = averageLine;
+  } else
+    self.averageLine = averageLine;
+}
+
 - (void)setOptions:(BEMGraphOptions *)options {
   _options = options;
 
-  self.topColor = self.options.colorTop;
+  self.topColor = [UIColor clearColor];
   self.bottomColor = self.options.colorBottom;
   self.topAlpha = self.options.alphaTop;
   self.bottomAlpha = self.options.alphaBottom;
@@ -50,10 +67,7 @@
                                 : (self.options.widthLine / 2);
   self.lineAlpha = self.options.alphaLine;
   self.bezierCurveIsEnabled = self.options.enableBezierCurve;
-  
-  self.arrayOfPoints = self.dataSet.yAxisValues;
-  self.arrayOfValues = self.dataSet.values;
-  
+
   self.lineDashPatternForReferenceYAxisLines =
       self.options.lineDashPatternForReferenceYAxisLines;
   self.lineDashPatternForReferenceXAxisLines =
@@ -76,7 +90,7 @@
     self.refrenceLineColor = self.options.colorReferenceLines;
     self.verticalReferenceHorizontalFringeNegation =
         self.xAxisHorizontalFringeNegationValue;
-    
+
     self.arrayOfVerticalRefrenceLinePoints =
         self.options.enableReferenceXAxisLines ? self.xAxisLabelPoints : nil;
     self.arrayOfHorizontalRefrenceLinePoints =
@@ -88,18 +102,6 @@
   self.lineGradientDirection = self.options.gradientLineDirection;
   self.animationTime = self.options.animationGraphEntranceTime;
   self.animationType = self.options.animationGraphStyle;
-
-  BEMAverageLine *averageLine = [[BEMAverageLine alloc] init];
-  if (self.averageLine.enableAverageLine == YES) {
-    if (self.averageLine.yValue == 0.0)
-      self.averageLine.yValue =
-          [self.dataSet calculatePointValueAverage].floatValue;
-    //      [self calculatePointValueAverage].floatValue;
-    //    self.averageLineYCoordinate =
-    //        [self yPositionForDotValue:self.averageLine.yValue];
-    self.averageLine = averageLine;
-  } else
-    self.averageLine = averageLine;
 
   self.disableMainLine = self.options.displayDotsOnly;
 }
