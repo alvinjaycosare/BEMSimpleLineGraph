@@ -102,8 +102,8 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
 - (void)onInit {
 
-  self.numberOfPoints = NSUIntegerMax;
-  self.maxNumberOfPoints = NSUIntegerMax;
+  self.numberOfPoints = 0;
+  self.maxNumberOfPoints = 0;
 
   self.yAxisLabelPoints = [NSMutableArray array];
   self.xAxisLabelPoints = [NSMutableArray array];
