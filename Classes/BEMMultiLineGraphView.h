@@ -20,7 +20,8 @@
 @protocol BEMMultiLineGraphViewDataSource <NSObject>
 
 - (BEMGraphOptions *)multiLineGraph:(BEMMultiLineGraphView *)lineGraph
-       viewOptionsOfLineWithDataSet:(BEMGraphDataSet *)dataSet;
+       viewOptionsOfLineWithDataSet:(BEMGraphDataSet *)dataSet
+                        inLineIndex:(NSUInteger)lineIndex;
 
 @end
 

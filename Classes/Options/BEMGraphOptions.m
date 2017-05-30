@@ -38,8 +38,7 @@
                                green:255.0 / 255.0
                                 blue:255.0 / 255.0
                                alpha:1];
-  _colorBottom =
-      [UIColor colorWithRed:0 green:122.0 / 255.0 blue:255 / 255 alpha:1];
+  _colorBottom = [UIColor darkGrayColor];
   _colorPoint = [UIColor colorWithWhite:1.0 alpha:0.7];
   _colorTouchInputLine = [UIColor grayColor];
   _colorBackgroundPopUplabel = [UIColor whiteColor];

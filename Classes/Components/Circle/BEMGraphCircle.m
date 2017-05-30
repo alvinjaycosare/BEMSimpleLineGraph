@@ -90,9 +90,10 @@
         CGPointMake(xCenterLabel + self.yAxisLabelOffset,
                     self.center.y - self.frame.size.height / 2 - 15);
   } else if ((permanentPopUpLabel.frame.origin.x +
-              permanentPopUpLabel.frame.size.width) >= self.superview.frame.size.width) {
-    xCenterLabel =
-        self.superview.frame.size.width - permanentPopUpLabel.frame.size.width / 2 - 4;
+              permanentPopUpLabel.frame.size.width) >=
+             self.superview.frame.size.width) {
+    xCenterLabel = self.superview.frame.size.width -
+                   permanentPopUpLabel.frame.size.width / 2 - 4;
     permanentPopUpLabel.center = CGPointMake(
         xCenterLabel, self.center.y - self.frame.size.height / 2 - 15);
   }

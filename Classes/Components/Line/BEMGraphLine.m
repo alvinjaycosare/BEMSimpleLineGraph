@@ -55,7 +55,7 @@
 - (void)setOptions:(BEMGraphOptions *)options {
   _options = options;
 
-  self.topColor = [UIColor clearColor];
+  self.topColor = self.options.colorTop;
   self.bottomColor = self.options.colorBottom;
   self.topAlpha = self.options.alphaTop;
   self.bottomAlpha = self.options.alphaBottom;

@@ -15,9 +15,11 @@
 
 static const NSUInteger kTotalPoints = 5;
 
-@interface MultipleViewController ()
+@interface MultipleViewController () <BEMMultiLineGraphViewDataSource>
 
 @property(weak, nonatomic) IBOutlet BEMMultiLineGraphView *graphView;
+
+@property(strong, nonatomic) BEMGraphOptions *options;
 
 @end
 
@@ -31,19 +33,24 @@ static const NSUInteger kTotalPoints = 5;
 }
 
 - (void)setupGraph {
-  BEMGraphOptions *options = [BEMGraphOptions new];
+  BEMGraphOptions *options = [[BEMGraphOptions alloc] init];
   options.autoScaleYAxis = YES;
 
   options.colorPoint = [UIColor darkGrayColor];
 
-  options.enableTouchReport = YES;
-  options.enablePopUpReport = YES;
+  options.colorTop = [UIColor clearColor];
+
+  options.colorBottom = [UIColor blueColor];
+  options.alphaBottom = 0.5;
+  options.colorReferenceLines = [UIColor lightGrayColor];
+
   options.enableYAxisLabel = YES;
   options.autoScaleYAxis = YES;
   options.alwaysDisplayDots = YES;
-  options.enableReferenceXAxisLines = YES;
+//  options.enableReferenceXAxisLines = YES;
   options.enableReferenceYAxisLines = YES;
   options.enableReferenceAxisFrame = YES;
+  options.alwaysDisplayPopUpLabels = NO;
 
   options.colorBackgroundXaxis = [UIColor whiteColor];
   // Draw an average line
@@ -58,7 +65,7 @@ static const NSUInteger kTotalPoints = 5;
   options.lineDashPatternForReferenceXAxisLines = @[ @(2), @(2) ];
   // Show the y axis values with this format string
   options.formatStringForValues = @"%.1f";
-  options.overlapYAxisWithGraph = NO;
+  options.overlapYAxisWithGraph = YES;
   options.alignmentYAxisLabel = NSTextAlignmentLeft;
   options.enableThousandValueFormatter = YES;
   options.allowOverlappingLabels = YES;
@@ -70,7 +77,10 @@ static const NSUInteger kTotalPoints = 5;
 
   options.marginLeftYAxisLabel = 8.f;
 
+  self.graphView.multiLineDataSource = self;
+
   self.graphView.options = options;
+  self.options = options;
 
   BEMGraphDataSet *dataSet =
       [[BEMGraphDataSet alloc] initWithValues:[self getValues]];
@@ -78,7 +88,7 @@ static const NSUInteger kTotalPoints = 5;
   BEMGraphDataSet *other =
       [[BEMGraphDataSet alloc] initWithValues:[self getValues]];
 
-  self.graphView.dataSets = @[ other ];
+  self.graphView.dataSets = @[ dataSet, other ];
 
   [self.graphView reloadGraph];
 }
@@ -101,6 +111,59 @@ static const NSUInteger kTotalPoints = 5;
 
 - (IBAction)didTapRefresh:(id)sender {
   [self.graphView reloadGraph];
+}
+
+#pragma mark - MultiGraph DataSource
+
+- (BEMGraphOptions *)multiLineGraph:(BEMMultiLineGraphView *)lineGraph
+       viewOptionsOfLineWithDataSet:(BEMGraphDataSet *)dataSet
+                        inLineIndex:(NSUInteger)lineIndex {
+
+  BEMGraphOptions *options = [[BEMGraphOptions alloc] init];
+  options.autoScaleYAxis = YES;
+
+  options.colorPoint = [UIColor darkGrayColor];
+
+  options.colorTop = [UIColor clearColor];
+
+  options.colorBottom = [UIColor darkGrayColor];
+  options.alphaBottom = 0.5;
+  options.colorReferenceLines = [UIColor lightGrayColor];
+
+  options.enableYAxisLabel = YES;
+  options.autoScaleYAxis = YES;
+  options.alwaysDisplayDots = YES;
+//  options.enableReferenceXAxisLines = YES;
+  options.enableReferenceYAxisLines = YES;
+  options.enableReferenceAxisFrame = YES;
+  options.alwaysDisplayPopUpLabels = NO;
+
+  options.colorBackgroundXaxis = [UIColor whiteColor];
+  // Draw an average line
+  options.averageLine.enableAverageLine = YES;
+  options.averageLine.alpha = 0.6;
+  options.averageLine.color = [UIColor darkGrayColor];
+  options.averageLine.width = 2.5;
+  options.averageLine.dashPattern = @[ @(2), @(2) ];
+  // Set the graph's animation style to draw, fade, or none
+  options.animationGraphStyle = BEMLineAnimationDraw;
+  // Dash the y reference lines
+  options.lineDashPatternForReferenceXAxisLines = @[ @(2), @(2) ];
+  // Show the y axis values with this format string
+  options.formatStringForValues = @"%.1f";
+  options.overlapYAxisWithGraph = YES;
+  options.alignmentYAxisLabel = NSTextAlignmentLeft;
+  options.enableThousandValueFormatter = YES;
+  options.allowOverlappingLabels = YES;
+  options.marginLeftYAxisLabel = 8.f;
+
+  options.enableThousandValueFormatter = YES;
+
+  options.allowOverlappingLabels = YES;
+
+  options.marginLeftYAxisLabel = 8.f;
+
+  return (lineIndex == 0) ? self.options : options;
 }
 
 @end

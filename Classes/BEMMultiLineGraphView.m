@@ -104,6 +104,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
   self.numberOfPoints = NSUIntegerMax;
   self.maxNumberOfPoints = NSUIntegerMax;
+
+  self.yAxisLabelPoints = [NSMutableArray array];
+  self.xAxisLabelPoints = [NSMutableArray array];
 }
 
 - (void)layoutSubviews {
@@ -136,6 +139,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   self.drawableXAxisArea =
       CGRectMake(xOrigin, self.bounds.size.height - xAxisHeight,
                  CGRectGetWidth(rect) + 1, xAxisHeight);
+
+  self.options.enableTouchReport = NO;
+  self.options.enablePopUpReport = NO;
 }
 
 - (void)reloadGraph {
@@ -433,7 +439,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [xAxisLabelPoints addObject:xAxisLabelCoordinate];
 
       [self addSubview:labelXAxis];
-      //      [xAxisValues addObject:xAxisLabelText];
     }
 
   } else if ([self.delegate
@@ -458,7 +463,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       [xAxisLabelPoints addObject:xAxisLabelCoordinate];
 
       [self addSubview:labelXAxis];
-      //      [xAxisValues addObject:xAxisLabelText];
     }
   } else {
     NSInteger numberOfGaps =
@@ -536,7 +540,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
         [xAxisLabelPoints addObject:xAxisLabelCoordinate];
 
         [self addSubview:labelXAxis];
-        //          [xAxisValues addObject:xAxisLabelText];
       }
     }
   }
@@ -569,6 +572,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   }
 
   [self.xAxisLabels addObjectsFromArray:xAxisLabels];
+  self.xAxisLabelPoints = xAxisLabelPoints;
 }
 
 - (void)drawYAxis {
@@ -785,10 +789,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
             respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)])
             ? [self.delegate lineGraph:self alwaysDisplayPopUpAtIndex:i]
             : shouldDisplayLabel;
+
     circleDot.shouldShowCircleLabel = shouldDisplayLabel;
 
-    //    circleDot.labelPrefix = ([self.delegate
-    //    respondsToSelector:@selector(linegaph)])
     circleDot.labelSuffix =
         ([self.delegate respondsToSelector:@selector(popUpSuffixForlineGraph:)])
             ? [self.delegate popUpSuffixForlineGraph:self]
@@ -799,7 +802,6 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
             ? [self.delegate popUpPrefixForlineGraph:self]
             : @"";
 
-    circleDot.shouldShowCircleLabel = i == 0;
     [self addSubview:circleDot];
 
     BOOL shouldHideDot =
@@ -872,37 +874,59 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   }
 
   //  // CREATION OF THE LINE AND BOTTOM AND TOP FILL
-  //  [self drawLine];
+  [self drawLine];
 }
 
 - (void)drawLine {
 
-  for (BEMGraphDataSet *dataSet in self.dataSets) {
+  for (NSUInteger i = 0; i < self.dataSets.count; i++) {
+    BEMGraphDataSet *dataSet = self.dataSets[i];
 
     BEMGraphLine *line =
         [[BEMGraphLine alloc] initWithFrame:self.drawableGraphArea];
     line.dataSet = dataSet;
     line.yAxisLabelPoints = self.yAxisLabelPoints;
     line.xAxisLabelPoints = self.xAxisLabelPoints;
-    line.averageLineYCoordinate =
-        (line.averageLine.enableAverageLine)
-            ? [self yPositionForDotValue:self.averageLine.yValue]
-            : 0;
 
     line.options = ([self.multiLineDataSource
                        respondsToSelector:@selector(multiLineGraph:
-                                              viewOptionsOfLineWithDataSet:)])
+                                              viewOptionsOfLineWithDataSet:
+                                                               inLineIndex:)])
                        ? [self.multiLineDataSource multiLineGraph:self
-                                     viewOptionsOfLineWithDataSet:dataSet]
+                                     viewOptionsOfLineWithDataSet:dataSet
+                                                      inLineIndex:i]
                        : self.options;
 
-    [self insertSubview:line atIndex:0];
+    line.averageLineYCoordinate =
+        (line.averageLine.enableAverageLine)
+            ? [self yPositionForDotValue:line.averageLine.yValue]
+            : 0;
+
+    [self insertSubview:line atIndex:i];
   }
 
   [self didFinishDrawingIncludingYAxis:NO];
 }
 
 #pragma mark - Calculations
+
+- (BEMCircle *)closestDotFromtouchInputLine:(UIView *)touchInputLine {
+  CGFloat currentlyCloser = CGFLOAT_MAX;
+  BEMCircle *closestDot = nil;
+  for (BEMCircle *point in self.subviews) {
+    if ([point isMemberOfClass:[BEMCircle class]]) {
+      if (self.alwaysDisplayDots == NO && self.displayDotsOnly == NO) {
+        point.alpha = 0;
+      }
+      if (pow(((point.center.x) - touchInputLine.center.x), 2) <
+          currentlyCloser) {
+        currentlyCloser = pow(((point.center.x) - touchInputLine.center.x), 2);
+        closestDot = point;
+      }
+    }
+  }
+  return closestDot;
+}
 
 - (void)calculateYAxisLabelXOffset {
 
