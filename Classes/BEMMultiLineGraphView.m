@@ -768,18 +768,24 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   CGFloat YAxisLabelXOffset =
       self.options.overlapYAxisWithGraph ? 0 : self.YAxisLabelXOffset;
 
-  void (^addCircleDotView)(CGFloat, CGFloat, CGFloat, NSUInteger) = ^(
-      CGFloat xAxisPos, CGFloat yAxisPos, CGFloat value,
-      NSUInteger xAxisIndex) {
+  void (^addCircleDotView)(CGFloat, CGFloat, CGFloat, NSUInteger,
+                           NSUInteger) = ^(CGFloat xAxisPos, CGFloat yAxisPos,
+                                           CGFloat value, NSUInteger xAxisIndex,
+                                           NSUInteger dataSetIndex) {
 
     NSUInteger i = xAxisIndex;
+
+    BEMGraphOptions *options =
+        [self.multiLineDataSource multiLineGraph:self
+                    viewOptionsOfLineWithDataSet:self.dataSets[dataSetIndex]
+                                     inLineIndex:dataSetIndex];
 
     BEMGraphCircle *circleDot = [[BEMGraphCircle alloc] initWithValue:@(value)];
     circleDot.frame =
         CGRectMake(0, 0, self.options.sizePoint, self.options.sizePoint);
     circleDot.center = CGPointMake(xAxisPos, yAxisPos);
     circleDot.alpha = 0;
-    circleDot.options = self.options;
+    circleDot.options = options;
     circleDot.absoluteValue = value;
     circleDot.yAxisLabelOffset = YAxisLabelXOffset;
 
@@ -855,12 +861,9 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
                i) +
                   YAxisLabelXOffset;
 
-    // The position on the Y-axis of the point currently
-    // being created.
+    for (NSUInteger j = 0; j < self.dataSets.count; j++) {
+      BEMGraphDataSet *dataSet = self.dataSets[j];
 
-    //            [self.yAxisValues addObject:@(positionOnYAxis)];
-
-    for (BEMGraphDataSet *dataSet in self.dataSets) {
       CGFloat dotValue = dataSet.values[i].floatValue;
 
       // If we're dealing with an null value, don't draw the dot
@@ -870,7 +873,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
       CGFloat positionOnYAxis = [self yPositionForDotValue:dotValue];
       [dataSet.yAxisValues addObject:@(positionOnYAxis)];
 
-      addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i);
+      addCircleDotView(positionOnXAxis, positionOnYAxis, dotValue, i, j);
     }
   }
 
