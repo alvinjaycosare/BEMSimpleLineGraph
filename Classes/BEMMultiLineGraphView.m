@@ -783,7 +783,7 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
     circleDot.absoluteValue = value;
     circleDot.yAxisLabelOffset = YAxisLabelXOffset;
 
-    BOOL shouldDisplayLabel = self.options.alwaysDisplayDots;
+    BOOL shouldDisplayLabel = self.options.alwaysDisplayPopUpLabels;
     shouldDisplayLabel &=
         ([self.delegate
             respondsToSelector:@selector(lineGraph:alwaysDisplayPopUpAtIndex:)])
@@ -804,10 +804,11 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
 
     [self addSubview:circleDot];
 
-    BOOL shouldHideDot =
-        ([self.delegate
-             respondsToSelector:@selector(lineGraph:hideDotAtIndex:)] &&
-         [self.delegate lineGraph:self hideDotAtIndex:i]);
+    BOOL shouldHideDot = self.options.alwaysDisplayDots;
+    shouldHideDot = ([self.delegate respondsToSelector:@selector(lineGraph:
+                                                            hideDotAtIndex:)])
+                        ? [self.delegate lineGraph:self hideDotAtIndex:i]
+                        : shouldHideDot;
 
     // Dot entrance animation
     if (self.options.animationGraphEntranceTime == 0) {
