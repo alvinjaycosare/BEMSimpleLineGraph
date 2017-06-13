@@ -168,8 +168,18 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
   }
   self.numberOfPoints = numberOfPoints;
   self.maxNumberOfPoints = maxNumberOfPoints;
+
   self.maxValue = max;
   self.minValue = min;
+
+  self.maxValue =
+      [self.delegate respondsToSelector:@selector(maxValueForLineGraph:)]
+          ? [self.delegate maxValueForLineGraph:self]
+          : max;
+  self.minValue =
+      [self.delegate respondsToSelector:@selector(minValueForLineGraph:)]
+          ? [self.delegate minValueForLineGraph:self]
+          : min;
 }
 
 #pragma mark - Draw
