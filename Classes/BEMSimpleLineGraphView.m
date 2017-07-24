@@ -382,14 +382,14 @@ typedef NS_ENUM(NSInteger, BEMInternalTags) {
     self.tapGesture = [[UITapGestureRecognizer alloc]
         initWithTarget:self
                 action:@selector(handleGestureAction:)];
-    self.tapGesture.delegate = self;
+    //    self.tapGesture.delegate = self;
     [self.panView addGestureRecognizer:self.tapGesture];
 
-    self.longPressGesture = [[UILongPressGestureRecognizer alloc]
-        initWithTarget:self
-                action:@selector(handleGestureAction:)];
-    self.longPressGesture.minimumPressDuration = 0.1f;
-    [self.panView addGestureRecognizer:self.longPressGesture];
+    //    self.longPressGesture = [[UILongPressGestureRecognizer alloc]
+    //        initWithTarget:self
+    //                action:@selector(handleGestureAction:)];
+    //    self.longPressGesture.minimumPressDuration = 0.1f;
+    //    [self.panView addGestureRecognizer:self.longPressGesture];
 
     if (self.enablePopUpReport == YES && self.alwaysDisplayPopUpLabels == NO) {
       if ([self.delegate
